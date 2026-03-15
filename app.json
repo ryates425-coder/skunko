@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Bunco",
+    "slug": "bunco",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "bunco",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#2d5016"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.bunco.app"
+    },
+    "android": {
+      "edgeToEdgeEnabled": false,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#2d5016"
+      },
+      "package": "com.bunco.app"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-asset"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a6cf00cb-ca65-49de-98f4-2779bc6529f9"
+      }
+    }
+  }
+}

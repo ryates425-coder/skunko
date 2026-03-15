@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Temp / scratch
+temp-assets/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# Build outputs
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Debug / crash dumps
+npm-debug.log*
+com.facebook.react.*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
