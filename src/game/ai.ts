@@ -1,10 +1,15 @@
 import { rollDice } from './dice';
+import { AI_NAMES } from '../constants/aiNames';
 
-const MIN_DELAY_MS = 800;
-const MAX_DELAY_MS = 1200;
+const AI_DELAY_MS = 1200;
+
+export function pickAINames(count: number): string[] {
+  const shuffled = [...AI_NAMES].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}
 
 export function getAIDelayMs(): number {
-  return MIN_DELAY_MS + Math.random() * (MAX_DELAY_MS - MIN_DELAY_MS);
+  return AI_DELAY_MS;
 }
 
 export function performAIRoll(): [number, number, number] {

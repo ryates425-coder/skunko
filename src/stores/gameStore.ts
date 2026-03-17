@@ -43,9 +43,17 @@ function createInitialPlayers(scoringMode: ScoringMode): Player[] {
   ];
 }
 
+/** UI transition: set with rolling=false so score display knows to hide update until fly completes. */
+type PendingScoreFly = { points: number; playerIndex: number } | null;
+
 interface GameStore extends GameState {
+  pendingScoreFly: PendingScoreFly;
   initGame: (scoringMode: ScoringMode) => void;
-  roll: () => RollResult | null;
+  roll: (forcedDice?: [number, number, number]) => RollResult | null;
+  setRolling: (rolling: boolean) => void;
+  prepareScoreFlyAndStopRolling: (payload: { points: number; playerIndex: number }) => void;
+  clearPendingScoreFly: () => void;
+  advanceFromHumanTurn: () => void;
   endTurn: () => void;
   advanceToNextRound: () => void;
   restartGame: () => void;
@@ -53,6 +61,8 @@ interface GameStore extends GameState {
   endGameEarly: () => void;
   setSoundsAndHapticsEnabled: (enabled: boolean) => Promise<void>;
   loadSoundsAndHaptics: () => Promise<void>;
+  setDebuggerDiceEnabled: (enabled: boolean) => void;
+  setCelebrationActive: (active: boolean) => void;
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -74,6 +84,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
   roundWinner: null,
   gameWinner: null,
   soundsAndHapticsEnabled: true,
+  awaitingHumanAdvance: false,
+  rolling: false,
+  debuggerDiceEnabled: false,
+  celebrationActive: false,
+  /** UI-only: set with rolling=false so avatar shows old score before ScoreFly state exists */
+  pendingScoreFly: null as { points: number; playerIndex: number } | null,
+
+  setRolling: (rolling: boolean) => set({ rolling }),
+  prepareScoreFlyAndStopRolling: (payload: { points: number; playerIndex: number }) =>
+    set({ rolling: false, pendingScoreFly: payload }),
+  clearPendingScoreFly: () => set({ pendingScoreFly: null }),
+
+  setCelebrationActive: (active: boolean) => set({ celebrationActive: active }),
+
+  setDebuggerDiceEnabled: (enabled: boolean) => set({ debuggerDiceEnabled: enabled }),
 
   loadSoundsAndHaptics: async () => {
     try {
@@ -113,14 +138,35 @@ export const useGameStore = create<GameStore>((set, get) => ({
       lastRollType: null,
       roundWinner: null,
       gameWinner: null,
+      awaitingHumanAdvance: false,
+      rolling: false,
+      celebrationActive: false,
     });
   },
 
-  roll: () => {
+  advanceFromHumanTurn: () => {
+    const { currentPlayerIndex, phase } = get();
+    if (phase !== 'playing') return;
+    const nextIndex = (currentPlayerIndex + 1) % 4;
+    set({
+      currentPlayerIndex: nextIndex,
+      turnInProgress: false,
+      lastRoll: null,
+      lastRollScore: 0,
+      lastRollType: null,
+      awaitingHumanAdvance: false,
+      pendingScoreFly: null,
+    });
+  },
+
+  roll: (forcedDice?: [number, number, number]) => {
     const { round, phase, scoringMode } = get();
     if (phase !== 'playing') return null;
 
-    const dice = rollDice();
+    const dice =
+      Array.isArray(forcedDice) && forcedDice.length === 3
+        ? (forcedDice as [number, number, number])
+        : rollDice();
     const result = scoreRoll(dice, round);
 
     const isBuncoRoll = isBunco(dice, round);
@@ -130,52 +176,72 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (isBuncoRoll) type = 'bunco';
     else if (isMiniBuncoRoll) type = 'miniBunco';
 
-    set({
-      turnInProgress: true,
-      lastRoll: dice,
-      lastRollScore: result.points,
-      lastRollType: type,
-    });
-
     const { currentPlayerIndex, roundScores, teamScores } = get();
     const humanIndex = 0;
     const isHumanTurn = currentPlayerIndex === humanIndex;
 
+    const currentScore =
+      scoringMode === 'individual'
+        ? (roundScores[currentPlayerIndex] ?? 0)
+        : (teamScores[currentPlayerIndex % 2 === 0 ? 0 : 1] ?? 0);
+
+    let pointsDelta: number;
+    let newScore: number;
+
+    if (isBuncoRoll) {
+      pointsDelta = -currentScore;
+      newScore = 0;
+    } else if (isMiniBuncoRoll) {
+      const deduction = Math.min(5, currentScore);
+      pointsDelta = -deduction;
+      newScore = currentScore - deduction;
+    } else {
+      pointsDelta = result.points;
+      newScore = currentScore + result.points;
+    }
+
+    set({
+      turnInProgress: true,
+      lastRoll: dice,
+      lastRollScore: pointsDelta,
+      lastRollType: type,
+    });
+
     if (scoringMode === 'individual') {
       const newScores = [...roundScores];
-      newScores[currentPlayerIndex] += result.points;
+      newScores[currentPlayerIndex] = newScore;
       set({ roundScores: newScores });
     } else {
       const teamIndex = currentPlayerIndex % 2 === 0 ? 0 : 1;
       const newTeamScores = [...teamScores] as [number, number];
-      newTeamScores[teamIndex] += result.points;
+      newTeamScores[teamIndex] = newScore;
       set({ teamScores: newTeamScores });
     }
 
     const roundTarget = 21;
-    const hitTarget =
-      scoringMode === 'individual'
-        ? (get().roundScores[currentPlayerIndex] ?? 0) >= roundTarget
-        : (get().teamScores[currentPlayerIndex % 2 === 0 ? 0 : 1] ?? 0) >= roundTarget;
+    const hitTarget = newScore >= roundTarget;
+    const rollAgain = isBuncoRoll ? false : result.rollAgain;
 
-    if (isBuncoRoll || hitTarget) {
+    if (hitTarget) {
       set({ phase: 'roundEnd', roundWinner: currentPlayerIndex });
-    } else if (!result.rollAgain) {
-      const nextIndex = (currentPlayerIndex + 1) % 4;
-      set({
-        currentPlayerIndex: nextIndex,
-        turnInProgress: false,
-        lastRoll: null,
-        lastRollScore: 0,
-        lastRollType: null,
-      });
+    } else if (!rollAgain) {
+      if (isHumanTurn) {
+        // Pause so human can verify results before turn advances
+        set({ turnInProgress: false, awaitingHumanAdvance: true });
+      } else {
+        // AI turn: keep lastRoll visible; useGameEngine will pause then advance
+        set({ turnInProgress: false });
+      }
+    } else {
+      // rollAgain: same player rolls again
+      set({ turnInProgress: false });
     }
 
     return {
       dice,
-      score: result.points,
+      score: pointsDelta,
       type,
-      rollAgain: result.rollAgain,
+      rollAgain,
     };
   },
 
@@ -190,6 +256,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       lastRoll: null,
       lastRollScore: 0,
       lastRollType: null,
+      pendingScoreFly: null,
     });
   },
 
@@ -292,6 +359,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       roundWinner: null,
       gameWinner: null,
       players,
+      awaitingHumanAdvance: false,
+      celebrationActive: false,
     });
   },
 
@@ -307,6 +376,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       lastRollScore: 0,
       lastRollType: null,
       roundWinner: null,
+      awaitingHumanAdvance: false,
+      celebrationActive: false,
     });
   },
 

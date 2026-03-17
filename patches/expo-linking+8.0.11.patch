@@ -1,0 +1,24 @@
+diff --git a/node_modules/expo-linking/build/Linking.js b/node_modules/expo-linking/build/Linking.js
+index 4a576ba..5e5594b 100644
+--- a/node_modules/expo-linking/build/Linking.js
++++ b/node_modules/expo-linking/build/Linking.js
+@@ -141,6 +141,6 @@ export function useLinkingURL() {
+     return url ?? null;
+ }
+ export * from './Linking.types';
+-export * from './Schemes';
++export * from './Schemes.js';
+ export { parse, createURL } from './createURL';
+ //# sourceMappingURL=Linking.js.map
+\ No newline at end of file
+diff --git a/node_modules/expo-linking/build/createURL.js b/node_modules/expo-linking/build/createURL.js
+index f8a3ccc..519eb90 100644
+--- a/node_modules/expo-linking/build/createURL.js
++++ b/node_modules/expo-linking/build/createURL.js
+@@ -1,5 +1,5 @@
+ import Constants from 'expo-constants';
+-import { hasCustomScheme, resolveScheme } from './Schemes';
++import { hasCustomScheme, resolveScheme } from './Schemes.js';
+ import { validateURL } from './validateURL';
+ function getHostUri() {
+     if (Constants.expoConfig?.hostUri) {

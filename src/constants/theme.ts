@@ -1,14 +1,14 @@
 export const theme = {
   colors: {
-    primary: '#2d5016',
-    tableFelt: '#1a4d0a',
-    tableEdge: '#3d2817',
-    cardBackground: '#f5f0e6',
+    primary: '#4a5568',
+    tableFelt: '#2d3748',
+    tableEdge: '#1a202c',
+    cardBackground: '#edf2f7',
     text: '#1a1a1a',
     textMuted: '#666',
-    accent: '#c9a227',
+    accent: '#319795',
     bunco: '#c41e3a',
-    miniBunco: '#ffa500',
+    miniBunco: '#4fd1c5',
   },
   spacing: {
     xs: 4,

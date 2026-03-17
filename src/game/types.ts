@@ -26,6 +26,12 @@ export interface GameState {
   roundWinner: number | null;
   gameWinner: number | null;
   soundsAndHapticsEnabled: boolean;
+  /** True when human just finished turn (no rollAgain) — UI pauses before advancing */
+  awaitingHumanAdvance: boolean;
+  /** True during dice roll animation (human or AI) */
+  rolling: boolean;
+  /** True while celebration overlay is showing — blocks rolls and AI turns */
+  celebrationActive: boolean;
 }
 
 export type RollResult = {

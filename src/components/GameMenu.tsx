@@ -27,6 +27,8 @@ export function GameMenu({ visible, onClose }: GameMenuProps) {
   const restartRound = useGameStore((s) => s.restartRound);
   const endGameEarly = useGameStore((s) => s.endGameEarly);
   const scoringMode = useGameStore((s) => s.scoringMode);
+  const debuggerDiceEnabled = useGameStore((s) => s.debuggerDiceEnabled);
+  const setDebuggerDiceEnabled = useGameStore((s) => s.setDebuggerDiceEnabled);
 
   const handleStartNewGame = () => {
     onClose();
@@ -109,6 +111,21 @@ export function GameMenu({ visible, onClose }: GameMenuProps) {
             <Switch
               value={soundsAndHapticsEnabled}
               onValueChange={setSoundsAndHapticsEnabled}
+              trackColor={{
+                false: theme.colors.textMuted,
+                true: theme.colors.accent,
+              }}
+              thumbColor={theme.colors.cardBackground}
+            />
+          </View>
+
+          <View style={styles.toggleRow}>
+            <Text style={styles.toggleLabel}>
+              Debugger Dice {debuggerDiceEnabled ? 'on' : 'off'}
+            </Text>
+            <Switch
+              value={debuggerDiceEnabled}
+              onValueChange={setDebuggerDiceEnabled}
               trackColor={{
                 false: theme.colors.textMuted,
                 true: theme.colors.accent,
