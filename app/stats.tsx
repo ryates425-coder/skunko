@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { getStats, type PlayerStats } from '../src/services/stats';
 import { theme } from '../src/constants/theme';
 
@@ -44,14 +45,15 @@ export default function StatsScreen() {
 
   if (loading || !stats) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
         <ActivityIndicator size="large" color={theme.colors.accent} />
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+    <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
       <Text style={styles.title}>Player Stats</Text>
 
       <StatSection title="Individual">
@@ -99,6 +101,7 @@ export default function StatsScreen() {
         <Text style={styles.backButtonText}>Back</Text>
       </TouchableOpacity>
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -106,6 +109,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.primary,
+  },
+  scrollView: {
+    flex: 1,
   },
   content: {
     padding: theme.spacing.xl,

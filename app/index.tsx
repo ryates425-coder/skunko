@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState, useEffect } from 'react';
 import { useGameStore } from '../src/stores/gameStore';
 import { theme } from '../src/constants/theme';
@@ -20,7 +21,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <Text style={styles.title}>Bunco</Text>
       <Text style={styles.subtitle}>Roll the dice. Score 21 to win the round.</Text>
 
@@ -69,7 +70,7 @@ export default function HomeScreen() {
       >
         <Text style={styles.secondaryButtonText}>Player Stats</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -1,10 +1,12 @@
 import { useEffect, useLayoutEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, Pressable, InteractionManager } from 'react-native';
+import { View, Text, StyleSheet, Pressable, InteractionManager, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Dice } from '../src/components/Dice';
 import { ScoreFly } from '../src/components/ScoreFly';
 import { PlayerCard } from '../src/components/PlayerCard';
 import { BuncoCelebration } from '../src/components/BuncoCelebration';
+import { SkuncoCelebration } from '../src/components/SkuncoCelebration';
 import { RoundTransition } from '../src/components/RoundTransition';
 import { useGameStore } from '../src/stores/gameStore';
 import { useGameEngine } from '../src/hooks/useGameEngine';
@@ -20,9 +22,10 @@ import {
 
 export default function GameScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [menuVisible, setMenuVisible] = useState(false);
   const [celebration, setCelebration] = useState<{
-    type: 'miniBunco' | 'bunco' | 'roundWin';
+    type: 'miniBunco' | 'bunco' | 'roundWin' | 'skunco' | 'miniSkunco';
     winnerName?: string;
   } | null>(null);
   const [roundTransition, setRoundTransition] = useState<number | null>(null);
@@ -348,19 +351,19 @@ export default function GameScreen() {
             useGameStore.getState().advanceToNextRound();
           }, 800);
         } else {
-          t = setTimeout(() => {
-            if (type === 'miniBunco') {
-              setCelebrationActive(true);
-              setCelebration({ type: 'miniBunco' });
-              recordMiniBunco(sm);
-              if (snd) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            } else {
-              setCelebrationActive(true);
-              setCelebration({ type: 'bunco', winnerName: p0Name });
-              recordBunco(sm);
-              if (snd) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            }
-          }, 100);
+          // Set immediately — advanceFromHumanTurn (from ScoreFly onComplete) triggers a re-render
+          // that cancels delayed timeouts via effect cleanup; sync set avoids cancellation
+          if (type === 'miniBunco') {
+            setCelebrationActive(true);
+            setCelebration({ type: 'miniSkunco' });
+            recordMiniBunco(sm);
+            if (snd) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          } else {
+            setCelebrationActive(true);
+            setCelebration({ type: 'skunco' });
+            recordBunco(sm);
+            if (snd) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          }
         }
       } else if (phase === 'roundEnd' && roundWinner !== null && lastRollType !== 'bunco') {
         const humanWonRound =
@@ -397,7 +400,7 @@ export default function GameScreen() {
   }, [rolling, phase, lastRoll, lastRollScore, lastRollType, currentPlayerIndex, pendingScoreFly, clearPendingScoreFly, scoringMode, soundsAndHapticsEnabled, players]);
 
   return (
-    <View ref={containerRef} style={styles.container} collapsable={false}>
+    <View ref={containerRef} style={[styles.container, { paddingTop: Math.max(insets.top, insets.bottom), paddingBottom: Math.max(insets.top, insets.bottom), paddingLeft: Math.max(insets.left, insets.right, theme.spacing.lg), paddingRight: Math.max(insets.left, insets.right, theme.spacing.lg) }]} collapsable={false}>
       <View style={styles.table}>
         <View style={styles.tableSurface}>
           <Text style={styles.roundLabel}>
@@ -559,13 +562,19 @@ export default function GameScreen() {
       )}
 
       <Pressable
-        style={styles.menuButton}
+        style={[styles.menuButton, { top: insets.top + 16, left: Math.max(insets.left, theme.spacing.lg) }]}
         onPress={() => setMenuVisible(true)}
       >
         <Ionicons name="menu" size={28} color={theme.colors.cardBackground} />
       </Pressable>
 
-      {celebration && (
+      {celebration && (celebration.type === 'skunco' || celebration.type === 'miniSkunco') && (
+        <SkuncoCelebration
+          type={celebration.type}
+          onComplete={handleCelebrationComplete}
+        />
+      )}
+      {celebration && celebration.type !== 'skunco' && celebration.type !== 'miniSkunco' && (
         <BuncoCelebration
           type={celebration.type}
           winnerName={celebration.winnerName}
@@ -595,7 +604,8 @@ const styles = StyleSheet.create({
   },
   table: {
     flex: 1,
-    padding: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.xs,
     justifyContent: 'center',
   },
   tableSurface: {
@@ -604,11 +614,12 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 8,
     borderColor: theme.colors.tableEdge,
-    padding: theme.spacing.lg,
-    minHeight: 400,
+    paddingVertical: theme.spacing.lg,
+    paddingHorizontal: theme.spacing.sm,
+    minHeight: 600,
   },
   roundLabel: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: '600',
     color: theme.colors.cardBackground,
     textAlign: 'center',
@@ -670,8 +681,7 @@ const styles = StyleSheet.create({
   },
   menuButton: {
     position: 'absolute',
-    top: 48,
-    right: theme.spacing.lg,
+    left: theme.spacing.lg,
     padding: theme.spacing.sm,
   },
 });

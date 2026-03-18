@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGameStore } from '../src/stores/gameStore';
 import { recordGameComplete } from '../src/services/stats';
 import { theme } from '../src/constants/theme';
@@ -62,7 +63,7 @@ export default function ResultsScreen() {
   }, [phase, winnerIdx, scoringMode, humanTotalScore]);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       {showGameWinCelebration && winnerIdx === 0 && (
         <BuncoCelebration
           type="gameWin"
@@ -110,7 +111,7 @@ export default function ResultsScreen() {
           onComplete={() => setShowGameWinCelebration(false)}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 

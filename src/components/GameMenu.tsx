@@ -8,6 +8,7 @@ import {
   Switch,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGameStore } from '../stores/gameStore';
 import { theme } from '../constants/theme';
 
@@ -18,6 +19,7 @@ interface GameMenuProps {
 
 export function GameMenu({ visible, onClose }: GameMenuProps) {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const soundsAndHapticsEnabled = useGameStore((s) => s.soundsAndHapticsEnabled);
   const setSoundsAndHapticsEnabled = useGameStore(
     (s) => s.setSoundsAndHapticsEnabled
@@ -68,7 +70,7 @@ export function GameMenu({ visible, onClose }: GameMenuProps) {
         activeOpacity={1}
         onPress={onClose}
       >
-        <View style={styles.menu} onStartShouldSetResponder={() => true}>
+        <View style={[styles.menu, { paddingBottom: Math.max(48, insets.bottom + 24) }]} onStartShouldSetResponder={() => true}>
           <Text style={styles.menuTitle}>Menu</Text>
 
           <TouchableOpacity
@@ -154,7 +156,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: theme.spacing.xl,
-    paddingBottom: 48,
   },
   menuTitle: {
     fontSize: 24,
