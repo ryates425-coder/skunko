@@ -34,7 +34,7 @@ export function SkuncoCelebration({ type, onComplete }: SkuncoCelebrationProps) 
     []
   );
 
-  const label = type === 'skunco' ? 'Skunco!' : 'Mini Skunco!';
+  const label = type === 'skunco' ? 'Skunko!' : 'Mini Skunko!';
 
   useEffect(() => {
     const id = setTimeout(onComplete, 2500);

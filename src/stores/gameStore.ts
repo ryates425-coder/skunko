@@ -9,6 +9,7 @@ import {
 } from '../game/dice';
 import { pickAINames } from '../game/ai';
 import { AI_NAMES } from '../constants/aiNames';
+import { ROUND_TARGET_SCORE } from '../constants/gameRules';
 import type { GameState, Player, ScoringMode } from '../game/types';
 
 const SOUNDS_HAPTICS_KEY = '@bunco/soundsAndHaptics';
@@ -218,8 +219,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       set({ teamScores: newTeamScores });
     }
 
-    const roundTarget = 21;
-    const hitTarget = newScore >= roundTarget;
+    const hitTarget = newScore >= ROUND_TARGET_SCORE;
     const rollAgain = isBuncoRoll ? false : result.rollAgain;
 
     if (hitTarget) {

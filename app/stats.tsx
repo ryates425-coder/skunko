@@ -61,8 +61,8 @@ export default function StatsScreen() {
         <Text style={styles.stat}>Games won: {stats.individualGamesWon}</Text>
         <Text style={styles.stat}>Rounds played: {stats.individualRoundsPlayed}</Text>
         <Text style={styles.stat}>Rounds won: {stats.individualRoundsWon}</Text>
-        <Text style={styles.stat}>Buncos: {stats.individualBuncosCount}</Text>
-        <Text style={styles.stat}>Mini Buncos: {stats.individualMiniBuncosCount}</Text>
+        <Text style={styles.stat}>Skunkos: {stats.individualBuncosCount}</Text>
+        <Text style={styles.stat}>Mini Skunkos: {stats.individualMiniBuncosCount}</Text>
         <Text style={styles.subSection}>Top 10 scores</Text>
         {stats.individualHighScores.length === 0 ? (
           <Text style={styles.muted}>No scores yet</Text>
@@ -80,8 +80,8 @@ export default function StatsScreen() {
         <Text style={styles.stat}>Games won: {stats.teamGamesWon}</Text>
         <Text style={styles.stat}>Rounds played: {stats.teamRoundsPlayed}</Text>
         <Text style={styles.stat}>Rounds won: {stats.teamRoundsWon}</Text>
-        <Text style={styles.stat}>Buncos: {stats.teamBuncosCount}</Text>
-        <Text style={styles.stat}>Mini Buncos: {stats.teamMiniBuncosCount}</Text>
+        <Text style={styles.stat}>Skunkos: {stats.teamBuncosCount}</Text>
+        <Text style={styles.stat}>Mini Skunkos: {stats.teamMiniBuncosCount}</Text>
         <Text style={styles.subSection}>Top 10 scores</Text>
         {stats.teamHighScores.length === 0 ? (
           <Text style={styles.muted}>No scores yet</Text>

@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
   Switch,
 } from 'react-native';
 import { useRouter } from 'expo-router';

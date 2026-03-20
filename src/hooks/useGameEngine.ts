@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useGameStore } from '../stores/gameStore';
 
-const ROLL_ANIMATION_MS = 600;
 const RESOLVE_AT_MS = 550;
 /** Dice stop at 600ms. ScoreFly starts 610ms from roll(). */
 const SCORE_FLY_START_DELAY_MS = 610;

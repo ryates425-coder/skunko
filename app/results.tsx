@@ -103,14 +103,6 @@ export default function ResultsScreen() {
       >
         <Text style={styles.primaryButtonText}>New Game</Text>
       </TouchableOpacity>
-
-      {showGameWinCelebration && winnerIdx === 0 && winnerIdx >= 0 && (
-        <BuncoCelebration
-          type="gameWin"
-          winnerName="You"
-          onComplete={() => setShowGameWinCelebration(false)}
-        />
-      )}
     </SafeAreaView>
   );
 }

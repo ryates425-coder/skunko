@@ -1,3 +1,5 @@
+import { ROUND_TARGET_SCORE } from '../constants/gameRules';
+
 export function rollDice(): [number, number, number] {
   return [
     Math.floor(Math.random() * 6) + 1,
@@ -39,7 +41,7 @@ export function scoreRoll(
   const d = ensureDice(dice);
   if (!d) return { points: 0, rollAgain: false };
   let points = 0;
-  if (isBunco(d, roundNumber)) return { points: 21, rollAgain: true };
+  if (isBunco(d, roundNumber)) return { points: ROUND_TARGET_SCORE, rollAgain: true };
   if (isMiniBunco(d, roundNumber)) return { points: -5, rollAgain: false };
   for (const die of d) {
     if (die === roundNumber) points++;

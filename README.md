@@ -4,7 +4,7 @@ A cross-platform Bunco dice game for Android and iOS built with React Native and
 
 ## Features
 
-- **Traditional Bunco rules**: 6 rounds, roll for 1s through 6s, score 21 to win a round
+- **Traditional Bunco rules**: 6 rounds, roll for 1s through 6s, score 15 to win a round
 - **Scoring modes**: Individual (default) or Team (2v2)
 - **1 human + 3 AI players** with real names (Marcus, Elena, Jordan, etc.)
 - **Card table layout**: Top-down view with you at South, opponents at North, East, West
@@ -55,7 +55,7 @@ bunco/
 │   ├── stores/       # Zustand game store
 │   ├── services/     # Stats recording
 │   ├── hooks/        # useGameEngine (AI turns)
-│   ├── constants/    # Theme, AI names
+│   ├── constants/    # Theme, game rules, AI names
 │   └── lib/          # InstantDB client (when configured)
 └── instant.schema.ts # InstantDB schema for stats
 ```

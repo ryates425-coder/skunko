@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, Pressable, InteractionManager, Modal } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Dice } from '../src/components/Dice';
@@ -118,7 +118,7 @@ export default function GameScreen() {
         return;
       }
       if (state.phase === 'roundEnd') {
-        // Bunco or 21 — no ScoreFly, fixed delay then end roll
+        // Round-ending roll — no ScoreFly, fixed delay then end roll
         setTimeout(() => {
           if (soundsAndHapticsEnabled) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -299,19 +299,6 @@ export default function GameScreen() {
     if (!rolling && lastRollScore === 0) fullScoreDisplayedRef.current = true;
   }, [rolling, lastRollScore]);
 
-  // Sync: clear fullScoreDisplayedRef when new roll detected. Must run during render (before
-  // getScoreForPlayer) so we don't show full score for one frame when roll() just returned.
-  // That caused the first-score bounce. useEffect runs after paint, too late.
-  if (rolling && lastRoll !== null && lastRollScore !== 0) {
-    const key = `${JSON.stringify(lastRoll)}-${lastRollScore}`;
-    if (prevLastRollKey.current !== key) {
-      fullScoreDisplayedRef.current = false;
-      prevLastRollKey.current = key;
-    }
-  } else if (lastRoll === null) {
-    prevLastRollKey.current = null;
-  }
-
   // Only clear scoreFly when a NEW roll just updated the score (rollAgain case). Detect by:
   // lastRollScore changed from what scoreFly was set with - means roll() just added more points.
   // Don't clear when advancing turns (lastRoll=null) or when we just set rolling=true for
@@ -339,7 +326,6 @@ export default function GameScreen() {
         const type = lastRollType;
         const sm = scoringMode;
         const snd = soundsAndHapticsEnabled;
-        const p0Name = players[0]?.name ?? 'Winner';
         if (isGameWinningRoll) {
           t = setTimeout(() => {
             if (type === 'bunco') recordBunco(sm);

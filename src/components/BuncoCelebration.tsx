@@ -144,8 +144,8 @@ export function BuncoCelebration({
   }));
 
   const label =
-    type === 'miniBunco' ? 'Mini Bunco!' :
-    type === 'bunco' ? 'BUNCO!' :
+    type === 'miniBunco' ? 'Mini Skunko!' :
+    type === 'bunco' ? 'SKUNKO!' :
     type === 'roundWin' ? `Round Winner!\n${winnerName ?? ''}` :
     type === 'gameWin' ? `Champion!\n${winnerName ?? ''}` : '';
 

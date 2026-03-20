@@ -22,8 +22,8 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-      <Text style={styles.title}>Bunco</Text>
-      <Text style={styles.subtitle}>Roll the dice. Score 21 to win the round.</Text>
+      <Text style={styles.title}>Skunko</Text>
+      <Text style={styles.subtitle}>Roll the dice. Score 15 to win the round.</Text>
 
       <View style={styles.modeSection}>
         <Text style={styles.modeLabel}>Scoring mode</Text>
